@@ -605,7 +605,7 @@ function startGame(view) {
 const view = new (0, _canvasView.CanvasView)(`#playField`);
 view.initStartButton(startGame);
 
-},{"./view/CanvasView":"5noQJ","./helpers":"adjmJ","./sprites/paddle":"7WX0y","./images/paddle.png":"79ore","./setup":"1ctuX","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./sprites/ball":"6DHpB","./images/ball.png":"5LtMd","./collision":"4cIIj"}],"5noQJ":[function(require,module,exports) {
+},{"./view/CanvasView":"5noQJ","./sprites/ball":"6DHpB","./sprites/paddle":"7WX0y","./collision":"4cIIj","./images/paddle.png":"79ore","./images/ball.png":"5LtMd","./setup":"1ctuX","./helpers":"adjmJ","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"5noQJ":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "CanvasView", ()=>CanvasView);
@@ -668,69 +668,177 @@ exports.export = function(dest, destName, get) {
     });
 };
 
-},{}],"adjmJ":[function(require,module,exports) {
+},{}],"6DHpB":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "createBricks", ()=>createBricks);
-var _brick = require("./sprites/brick");
-var _setup = require("./setup");
-function createBricks() {
-    return (0, _setup.LEVEL).reduce((ack, element, i)=>{
-        const row = Math.floor((i + 1) / (0, _setup.STAGE_COLS));
-        const col = i % (0, _setup.STAGE_COLS);
-        const x = (0, _setup.STAGE_PADDING) + col * ((0, _setup.BRICK_WIDTH) + (0, _setup.BRICK_PADDING));
-        const y = (0, _setup.STAGE_PADDING) + row * ((0, _setup.BRICK_HEIGHT) + (0, _setup.BRICK_PADDING));
-        if (element === 0) return ack;
-        return [
-            ...ack,
-            new (0, _brick.Brick)((0, _setup.BRICK_WIDTH), (0, _setup.BRICK_HEIGHT), {
-                x,
-                y
-            }, (0, _setup.BRICK_ENERGY)[element], (0, _setup.BRICK_IMAGES)[element])
-        ];
-    }, []);
-}
-
-},{"./sprites/brick":"9yJOr","./setup":"1ctuX","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"9yJOr":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "Brick", ()=>Brick);
-class Brick {
-    constructor(brickWidth, brickHeight, position, brickEnergy, image){
-        this.brickWidth = brickWidth;
-        this.brickHeight = brickHeight;
+parcelHelpers.export(exports, "Ball", ()=>Ball);
+class Ball {
+    constructor(speed, ballSize, position, image){
+        this.ballSize = ballSize;
         this.position = position;
-        this.brickEnergy = brickEnergy;
-        this.brickImage = new Image();
-        this.brickWidth = brickWidth;
-        this.brickHeight = brickHeight;
+        this.ballImage = new Image();
+        this.ballSize = ballSize;
         this.position = position;
-        this.brickEnergy = brickEnergy;
-        this.brickImage.src = image;
+        this.speed = {
+            x: speed,
+            y: -speed
+        };
+        this.ballImage.src = image;
     }
-    //getters
+    //Getters 
     get width() {
-        return this.brickWidth;
+        return this.ballSize;
     }
     get height() {
-        return this.brickHeight;
+        return this.ballSize;
     }
     get pos() {
         return this.position;
     }
     get image() {
-        return this.brickImage;
+        return this.ballImage;
     }
-    get energy() {
-        return this.brickEnergy;
+    //Methods
+    changeYdirection() {
+        this.speed.y = -this.speed.y;
     }
-    //setter
-    set energy(energy) {
-        this.brickEnergy = energy;
+    changeXdirection() {
+        this.speed.x = -this.speed.x;
+    }
+    moveBall() {
+        this.pos.x = this.pos.x + this.speed.x;
+        this.pos.y += this.speed.y;
     }
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"1ctuX":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"7WX0y":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "Paddle", ()=>Paddle);
+class Paddle {
+    constructor(speed, paddleWidth, paddleHeight, position, image){
+        this.speed = speed;
+        this.paddleWidth = paddleWidth;
+        this.paddleHeight = paddleHeight;
+        this.position = position;
+        this.paddleImage = new Image();
+        this.handleKeyUp = (e)=>{
+            if (e.code === `ArrowLeft` || e.key === `ArrowLeft`) this.moveLeft = false;
+            if (e.code === `ArrowRight` || e.key === `ArrowRight`) this.moveRight = false;
+        };
+        this.handleKeyDown = (e)=>{
+            if (e.code === `ArrowLeft` || e.key === `ArrowLeft`) this.moveLeft = true;
+            if (e.code === "ArrowRight" || e.key === `ArrowRight`) this.moveRight = true;
+        };
+        this.speed = speed;
+        this.paddleWidth = paddleWidth;
+        this.paddleHeight = paddleHeight;
+        this.position = position;
+        this.moveLeft = false;
+        this.moveRight = false;
+        this.paddleImage.src = image;
+        // event listeners
+        document.addEventListener(`keydown`, this.handleKeyDown);
+        document.addEventListener(`keyup`, this.handleKeyUp);
+    }
+    //getters
+    get width() {
+        return this.paddleWidth;
+    }
+    get height() {
+        return this.paddleHeight;
+    }
+    get pos() {
+        return this.position;
+    }
+    get image() {
+        return this.paddleImage;
+    }
+    get isMovingLeft() {
+        return this.moveLeft;
+    }
+    get isMovingRight() {
+        return this.moveRight;
+    }
+    movePaddle() {
+        if (this.moveLeft) this.pos.x -= this.speed;
+        if (this.moveRight) this.pos.x += this.speed;
+    }
+}
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"4cIIj":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "Collision", ()=>Collision);
+class Collision {
+    isCollidingBrick(ball, brick) {
+        if (ball.pos.x < brick.pos.x + brick.width && ball.pos.x + ball.width > brick.pos.x && ball.pos.y < brick.pos.y + brick.height && ball.pos.y + ball.height > brick.pos.y) return true;
+        return false;
+    }
+    isCollidingBricks(ball, bricks) {
+        let colliding = false;
+        bricks.forEach((brick, i)=>{
+            if (this.isCollidingBrick(ball, brick)) {
+                ball.changeYdirection();
+                if (brick.energy === 1) bricks.splice(i, 1);
+                else brick.energy -= 1;
+                colliding = true;
+            }
+        });
+        return colliding;
+    }
+    checkBallCollision(ball, paddle, view) {
+        //1. check ball collision with paddle
+        if (ball.pos.x + ball.width > paddle.pos.x && ball.pos.x < paddle.pos.x + paddle.width && ball.pos.y + ball.height === paddle.pos.y) ball.changeYdirection();
+        //2: check ball collision with walls
+        //Vall movement x constraints
+        if (ball.pos.x > view.canvas.width - ball.width || ball.pos.x < 0) ball.changeXdirection();
+        //ball movement Y constraints
+        if (ball.pos.y < 0) ball.changeYdirection();
+    }
+}
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"79ore":[function(require,module,exports) {
+module.exports = require("./helpers/bundle-url").getBundleURL("7UhFu") + "paddle.db428d2d.png" + "?" + Date.now();
+
+},{"./helpers/bundle-url":"lgJ39"}],"lgJ39":[function(require,module,exports) {
+"use strict";
+var bundleURL = {};
+function getBundleURLCached(id) {
+    var value = bundleURL[id];
+    if (!value) {
+        value = getBundleURL();
+        bundleURL[id] = value;
+    }
+    return value;
+}
+function getBundleURL() {
+    try {
+        throw new Error();
+    } catch (err) {
+        var matches = ("" + err.stack).match(/(https?|file|ftp|(chrome|moz|safari-web)-extension):\/\/[^)\n]+/g);
+        if (matches) // The first two stack frames will be this function and getBundleURLCached.
+        // Use the 3rd one, which will be a runtime in the original bundle.
+        return getBaseURL(matches[2]);
+    }
+    return "/";
+}
+function getBaseURL(url) {
+    return ("" + url).replace(/^((?:https?|file|ftp|(chrome|moz|safari-web)-extension):\/\/.+)\/[^/]+$/, "$1") + "/";
+} // TODO: Replace uses with `new URL(url).origin` when ie11 is no longer supported.
+function getOrigin(url) {
+    var matches = ("" + url).match(/(https?|file|ftp|(chrome|moz|safari-web)-extension):\/\/[^/]+/);
+    if (!matches) throw new Error("Origin not found");
+    return matches[0];
+}
+exports.getBundleURL = getBundleURLCached;
+exports.getBaseURL = getBaseURL;
+exports.getOrigin = getOrigin;
+
+},{}],"5LtMd":[function(require,module,exports) {
+module.exports = require("./helpers/bundle-url").getBundleURL("7UhFu") + "ball.9af8dd59.png" + "?" + Date.now();
+
+},{"./helpers/bundle-url":"lgJ39"}],"1ctuX":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "STAGE_PADDING", ()=>STAGE_PADDING);
@@ -857,41 +965,7 @@ const LEVEL = [
 },{"./images/brick-red.png":"b5cIt","./images/brick-blue.png":"7govO","./images/brick-green.png":"4lEh6","./images/brick-yellow.png":"dxIqE","./images/brick-purple.png":"fb1bd","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"b5cIt":[function(require,module,exports) {
 module.exports = require("./helpers/bundle-url").getBundleURL("7UhFu") + "brick-red.93b1aeab.png" + "?" + Date.now();
 
-},{"./helpers/bundle-url":"lgJ39"}],"lgJ39":[function(require,module,exports) {
-"use strict";
-var bundleURL = {};
-function getBundleURLCached(id) {
-    var value = bundleURL[id];
-    if (!value) {
-        value = getBundleURL();
-        bundleURL[id] = value;
-    }
-    return value;
-}
-function getBundleURL() {
-    try {
-        throw new Error();
-    } catch (err) {
-        var matches = ("" + err.stack).match(/(https?|file|ftp|(chrome|moz|safari-web)-extension):\/\/[^)\n]+/g);
-        if (matches) // The first two stack frames will be this function and getBundleURLCached.
-        // Use the 3rd one, which will be a runtime in the original bundle.
-        return getBaseURL(matches[2]);
-    }
-    return "/";
-}
-function getBaseURL(url) {
-    return ("" + url).replace(/^((?:https?|file|ftp|(chrome|moz|safari-web)-extension):\/\/.+)\/[^/]+$/, "$1") + "/";
-} // TODO: Replace uses with `new URL(url).origin` when ie11 is no longer supported.
-function getOrigin(url) {
-    var matches = ("" + url).match(/(https?|file|ftp|(chrome|moz|safari-web)-extension):\/\/[^/]+/);
-    if (!matches) throw new Error("Origin not found");
-    return matches[0];
-}
-exports.getBundleURL = getBundleURLCached;
-exports.getBaseURL = getBaseURL;
-exports.getOrigin = getOrigin;
-
-},{}],"7govO":[function(require,module,exports) {
+},{"./helpers/bundle-url":"lgJ39"}],"7govO":[function(require,module,exports) {
 module.exports = require("./helpers/bundle-url").getBundleURL("7UhFu") + "brick-blue.515be4d7.png" + "?" + Date.now();
 
 },{"./helpers/bundle-url":"lgJ39"}],"4lEh6":[function(require,module,exports) {
@@ -903,139 +977,65 @@ module.exports = require("./helpers/bundle-url").getBundleURL("7UhFu") + "brick-
 },{"./helpers/bundle-url":"lgJ39"}],"fb1bd":[function(require,module,exports) {
 module.exports = require("./helpers/bundle-url").getBundleURL("7UhFu") + "brick-purple.cbd6284a.png" + "?" + Date.now();
 
-},{"./helpers/bundle-url":"lgJ39"}],"7WX0y":[function(require,module,exports) {
+},{"./helpers/bundle-url":"lgJ39"}],"adjmJ":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "Paddle", ()=>Paddle);
-class Paddle {
-    constructor(speed, paddleWidth, paddleHeight, position, image){
-        this.speed = speed;
-        this.paddleWidth = paddleWidth;
-        this.paddleHeight = paddleHeight;
+parcelHelpers.export(exports, "createBricks", ()=>createBricks);
+var _brick = require("./sprites/brick");
+var _setup = require("./setup");
+function createBricks() {
+    return (0, _setup.LEVEL).reduce((ack, element, i)=>{
+        const row = Math.floor((i + 1) / (0, _setup.STAGE_COLS));
+        const col = i % (0, _setup.STAGE_COLS);
+        const x = (0, _setup.STAGE_PADDING) + col * ((0, _setup.BRICK_WIDTH) + (0, _setup.BRICK_PADDING));
+        const y = (0, _setup.STAGE_PADDING) + row * ((0, _setup.BRICK_HEIGHT) + (0, _setup.BRICK_PADDING));
+        if (element === 0) return ack;
+        return [
+            ...ack,
+            new (0, _brick.Brick)((0, _setup.BRICK_WIDTH), (0, _setup.BRICK_HEIGHT), {
+                x,
+                y
+            }, (0, _setup.BRICK_ENERGY)[element], (0, _setup.BRICK_IMAGES)[element])
+        ];
+    }, []);
+}
+
+},{"./sprites/brick":"9yJOr","./setup":"1ctuX","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"9yJOr":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "Brick", ()=>Brick);
+class Brick {
+    constructor(brickWidth, brickHeight, position, brickEnergy, image){
+        this.brickWidth = brickWidth;
+        this.brickHeight = brickHeight;
         this.position = position;
-        this.paddleImage = new Image();
-        this.handleKeyUp = (e)=>{
-            if (e.code === `ArrowLeft` || e.key === `ArrowLeft`) this.moveLeft = false;
-            if (e.code === `ArrowRight` || e.key === `ArrowRight`) this.moveRight = false;
-        };
-        this.handleKeyDown = (e)=>{
-            if (e.code === `ArrowLeft` || e.key === `ArrowLeft`) this.moveLeft = true;
-            if (e.code === "ArrowRight" || e.key === `ArrowRight`) this.moveRight = true;
-        };
-        this.speed = speed;
-        this.paddleWidth = paddleWidth;
-        this.paddleHeight = paddleHeight;
+        this.brickEnergy = brickEnergy;
+        this.brickImage = new Image();
+        this.brickWidth = brickWidth;
+        this.brickHeight = brickHeight;
         this.position = position;
-        this.moveLeft = false;
-        this.moveRight = false;
-        this.paddleImage.src = image;
-        // event listeners
-        document.addEventListener(`keydown`, this.handleKeyDown);
-        document.addEventListener(`keyup`, this.handleKeyUp);
+        this.brickEnergy = brickEnergy;
+        this.brickImage.src = image;
     }
     //getters
     get width() {
-        return this.paddleWidth;
+        return this.brickWidth;
     }
     get height() {
-        return this.paddleHeight;
+        return this.brickHeight;
     }
     get pos() {
         return this.position;
     }
     get image() {
-        return this.paddleImage;
+        return this.brickImage;
     }
-    get isMovingLeft() {
-        return this.moveLeft;
+    get energy() {
+        return this.brickEnergy;
     }
-    get isMovingRight() {
-        return this.moveRight;
-    }
-    movePaddle() {
-        if (this.moveLeft) this.pos.x -= this.speed;
-        if (this.moveRight) this.pos.x += this.speed;
-    }
-}
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"79ore":[function(require,module,exports) {
-module.exports = require("./helpers/bundle-url").getBundleURL("7UhFu") + "paddle.db428d2d.png" + "?" + Date.now();
-
-},{"./helpers/bundle-url":"lgJ39"}],"6DHpB":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "Ball", ()=>Ball);
-class Ball {
-    constructor(speed, ballSize, position, image){
-        this.ballSize = ballSize;
-        this.position = position;
-        this.ballImage = new Image();
-        this.ballSize = ballSize;
-        this.position = position;
-        this.speed = {
-            x: speed,
-            y: -speed
-        };
-        this.ballImage.src = image;
-    }
-    //Getters 
-    get width() {
-        return this.ballSize;
-    }
-    get height() {
-        return this.ballSize;
-    }
-    get pos() {
-        return this.position;
-    }
-    get image() {
-        return this.ballImage;
-    }
-    //Methods
-    changeYdirection() {
-        this.speed.y = -this.speed.y;
-    }
-    changeXdirection() {
-        this.speed.x = -this.speed.x;
-    }
-    moveBall() {
-        this.pos.x = this.pos.x + this.speed.x;
-        this.pos.y += this.speed.y;
-    }
-}
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"5LtMd":[function(require,module,exports) {
-module.exports = require("./helpers/bundle-url").getBundleURL("7UhFu") + "ball.9af8dd59.png" + "?" + Date.now();
-
-},{"./helpers/bundle-url":"lgJ39"}],"4cIIj":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "Collision", ()=>Collision);
-class Collision {
-    isCollidingBrick(ball, brick) {
-        if (ball.pos.x < brick.pos.x + brick.width && ball.pos.x + ball.width > brick.pos.x && ball.pos.y < brick.pos.y + brick.height && ball.pos.y + ball.height > brick.pos.y) return true;
-        return false;
-    }
-    isCollidingBricks(ball, bricks) {
-        let colliding = false;
-        bricks.forEach((brick, i)=>{
-            if (this.isCollidingBrick(ball, brick)) {
-                ball.changeYdirection();
-                if (brick.energy === 1) bricks.splice(i, 1);
-                else brick.energy -= 1;
-                colliding = true;
-            }
-        });
-        return colliding;
-    }
-    checkBallCollision(ball, paddle, view) {
-        //1. check ball collision with paddle
-        if (ball.pos.x + ball.width > paddle.pos.x && ball.pos.x < paddle.pos.x + paddle.width && ball.pos.y + ball.height === paddle.pos.y) ball.changeYdirection();
-        //2: check ball collision with walls
-        //Vall movement x constraints
-        if (ball.pos.x > view.canvas.width - ball.width || ball.pos.x < 0) ball.changeXdirection();
-        //ball movement Y constraints
-        if (ball.pos.y < 0) ball.changeYdirection();
+    //setter
+    set energy(energy) {
+        this.brickEnergy = energy;
     }
 }
 
